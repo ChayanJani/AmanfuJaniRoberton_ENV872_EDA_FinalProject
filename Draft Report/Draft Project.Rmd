@@ -160,10 +160,10 @@ EJ_Florida <-EJ_filter %>%
   filter(STATE_NAME=="Florida")
 
 ## COMMENT THESE OUT THEN READ THEM IN
-write.table(EJ_California,'./Potential Data Sources/Census Tracts/EJScreen_California.csv',col.names=TRUE,sep=",")
-write.table(EJ_NorCar,'./Potential Data Sources/Census Tracts/EJScreen_NorthCarolina.csv',col.names=TRUE,sep=",")
-write.table(EJ_Florida,'./Potential Data Sources/Census Tracts/EJScreen_Florida.csv',col.names=TRUE,sep=",")
-###
+# write.table(EJ_California,'./Potential Data Sources/Census Tracts/EJScreen_California.csv',col.names=TRUE,sep=",")
+# write.table(EJ_NorCar,'./Potential Data Sources/Census Tracts/EJScreen_NorthCarolina.csv',col.names=TRUE,sep=",")
+# write.table(EJ_Florida,'./Potential Data Sources/Census Tracts/EJScreen_Florida.csv',col.names=TRUE,sep=",")
+# ###
 
 # EJ_NorCar <- EJScreen20 %>%
 #   filter(STATE_NAME=='North Carolina')
