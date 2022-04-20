@@ -1,2 +1,2 @@
 # AmanfuJaniRoberton_ENV872_EDA_FinalProject
-Tentative tentative
+For our study, we chose to focus our project on a few different environmental crises and identify the impact that is often disproportionately experienced by low-income communities. The purpose of our research is to understand the percentage of disparaged homes most at risk of floods and fires, and the correlation it shares with income. For this study, we chose three different states in different regions of the United States to see if geographical location might also dictate the outcome of the study. We chose to analyze North Carolina due to our familiarity and current livelihoods situated here, and two popular East and West coast states to inhabit: Florida and California. 
