@@ -3,19 +3,18 @@ title: "Draft Project - No California"
 author: "David Amanfu"
 date: "4/19/2022"
 output: pdf_document
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
+
 ```{r, initialize}
 # Set your working directory
 getwd()
 knitr::opts_knit$set(root.dir = '/Desktop/Duke MPP/Environ Data /872 Final Project/AmanfuJaniRoberton_ENV872_EDA_FinalProject/Project/')
+knitr::opts_chunk$set(echo = TRUE)
 getwd()
 ```
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-##Setup
 ```{=tex}
 \newpage
 \tableofcontents 
@@ -25,6 +24,9 @@ knitr::opts_chunk$set(echo = TRUE)
 \listoffigures 
 \newpage
 ```
+
+##Initializing Setup
+
 ```{r setup, include=FALSE}
 # Load your packages
 library(agricolae)
@@ -57,13 +59,14 @@ sf::sf_use_s2(FALSE)
 mapviewOptions(fgb = FALSE)
 
 Theme2 <- theme_ipsum()+
-  theme(legend.position = "bottom",
+  theme(legend.position = "bottomYes",
         legend.key = element_rect(fill = "white", colour = "black"),legend.direction = "horizontal",
         legend.title = element_text(face = "bold"))
 theme_set(Theme2)
 ```
-#Data Setup
-## Load Datasets
+
+#Data Setup ## Load Datasets
+
 ```{r load datasources}
 # Load your datasets
 home_path <- '~/Desktop/Duke MPP/Environ Data /872 Final Project'
@@ -73,9 +76,8 @@ NRIFlor <- read.csv(paste(home_path,'/AmanfuJaniRoberton_ENV872_EDA_FinalProject
 EJScreen20 <- read.csv(paste(home_path,'/AmanfuJaniRoberton_ENV872_EDA_FinalProject/Potential Data Sources/EJSCREEN_2020_StatePctile.csv',sep=""),stringsAsFactors = TRUE)
 ```
 
+##Filter Steps ##\# Initial Filter By State
 
-##Filter Steps
-### Initial Filter By State
 ```{r initial filter}
 NRIFlor2 <- NRIFlor %>%
   select(OID_,NRI_ID,STATE,COUNTY,TRACTFIPS,POPULATION,
@@ -94,7 +96,9 @@ NRINorCar2 <- NRINorCar %>%
 EJScreen20 <- EJScreen20 %>%
   filter(grepl('Florida|North Carolina',STATE_NAME))
 ```
+
 ###Filter NRI Dataset For Risks of Interest
+
 ```{r NRI risk filters}
 #flood risks
 NRIFlorFlood <- NRIFlor2 %>%
@@ -138,9 +142,8 @@ EJ_Florida <-EJ_filter %>%
 #write.csv(EJ_Florida,'./Potential Data Sources/Census Tracts/EJScreen_FLorida.csv')
 ```
 
-
-##Adding Location Data
-###Shape Files from Census Data
+##Adding Location Data 
+###Shape Files from Census Data 
 Add in Shape Files <https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html>
 
 ```{r census tracts}
@@ -150,7 +153,9 @@ florida_tract <- st_read('./Potential Data Sources/Census Tracts/cb_2020_flor_tr
 #mapview(california_tract,zcol="AWATER")
 ```
 
-Using Point Data for Longitude/Latitude Coordinates from US Census Gazetteer Files <https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.2020.html>
+Using Point Data for Longitude/Latitude Coordinates from US Census
+Gazetteer Files
+<https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.2020.html>
 
 ```{r Census Tract Point Long/Lat Coordinates}
 #https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.2020.html
@@ -171,7 +176,8 @@ nc_gazetteer <- nc_gazetteer %>%
   mutate(TRACTID = nc_gazetteer$GEOID)
 ```
 
-###Filtering With Shape Geometry 
+###Filtering With Shape Geometry
+
 ```{r florida file filtering}
 florida_tract <- florida_tract %>%
   select(GEOID,NAMELSAD, NAMELSADCO, ALAND, AWATER, geometry) %>%
@@ -195,6 +201,7 @@ select(!starts_with("T_")) %>%
 group_by(TRACTID) %>%
 summarize(across(!where(is.factor), mean))
 ```
+
 ```{r north carolina file filtering}
 norcar_tract <- norcar_tract %>%
   select(GEOID,NAMELSAD, NAMELSADCO, ALAND, AWATER, geometry) %>%
@@ -212,7 +219,6 @@ EJScreen_norcar <- EJ_NorCar
 names(EJScreen_norcar)[names(EJScreen_norcar) == 'ID'] <- 'BLOCKID' 
 EJScreen_norcar <- EJScreen_norcar %>% mutate(TRACTID = as.double(substr(EJScreen_norcar$BLOCKID,1,11)))
 
-         
 EJ_NorCar <- EJScreen_norcar %>%
 select(!starts_with("T_")) %>%
 group_by(TRACTID) %>%
@@ -220,6 +226,7 @@ summarize(across(!where(is.factor), mean))
 ```
 
 ###Merging NRI Data with Tract Shapes, EJScreen with Tract Coordinates
+
 ```{r attempts to merge}
 #Florida
 FL_NRI_fire_shp <- left_join(florida_tract,NRIFlorFire,by="TRACTFIPS")
@@ -239,25 +246,43 @@ NC_EJ_shp <- NC_EJ_df %>%
   st_as_sf(coords = c('INTPTLONG','INTPTLAT'), crs=4269)
 ```
 
-#Data Exploration
-##Simple Mapping
+#Data Exploration ##Simple Mapping
+
 ```{r simple mapview tests}
 #FL
-mapview(FL_NRI_fire_shp,zcol="POPULATION")
 mapview(FL_NRI_flood_shp,zcol="RFLD_RISKR")
 mapview(FL_EJ_shp,zcol="LOWINCPCT")
+# mapview(FL_NRI_fire_shp,zcol="POPULATION")
 mapview(FL_NRI_fire_shp,zcol="POPULATION")+ mapview(FL_NRI_flood_shp,zcol="RFLD_RISKR") +mapview(FL_EJ_shp,zcol="LOWINCPCT")
 
 #NC
-mapview(NC_NRI_fire_shp,zcol="POPULATION")
+# mapview(NC_NRI_fire_shp,zcol="POPULATION")
 mapview(NC_NRI_flood_shp,zcol="RFLD_RISKR")
 mapview(NC_EJ_shp,zcol="LOWINCPCT")
 mapview(NC_NRI_fire_shp,zcol="POPULATION")+mapview(NC_NRI_flood_shp,zcol="RFLD_RISKR")+mapview(NC_EJ_shp,zcol="LOWINCPCT")
 ```
 
+## Filtering Out Missing Data
 
-#Data Analysis
-## Simple Correlative Graphs
+```{r Dropping Incomplete Info}
+FL_EJ_shp <- FL_EJ_shp %>%
+  drop_na(BLOCKID)
+NC_EJ_shp <- NC_EJ_shp %>%
+  drop_na(BLOCKID)
+
+FL_NRI_fire_shp <- FL_NRI_fire_shp %>%
+  drop_na(WFIR_RISKS)   #%>%filter(WFIR_RISKS>0)
+NC_NRI_fire_shp <- NC_NRI_fire_shp %>%
+  drop_na(WFIR_RISKS)   #%>%filter(WFIR_RISKS>0)
+
+FL_NRI_flood_shp <- FL_NRI_flood_shp %>%
+  drop_na(POPULATION)
+NC_NRI_flood_shp <- NC_NRI_flood_shp %>%
+  drop_na(POPULATION)
+```
+
+#Data Analysis ## Simple Correlative Graphs
+
 ```{r simple graphs FL}
 ggplot(FL_EJ_df,aes(y=LOWINCPCT,x=PM25))+geom_point(aes(color=LINGISOPCT))+geom_smooth(method="lm")+labs(title="PM25 v Low Income %",y="% Low Income Census Tract",x="PM25 Concentration")
 
@@ -274,8 +299,8 @@ ggplot(NC_NRI_flood_shp,aes(y=POPULATION,x=CFLD_RISKR))+geom_boxplot()+coord_fli
 ggplot(NC_NRI_flood_shp,aes(y=POPULATION,x=RFLD_RISKR))+geom_boxplot()+coord_flip()+labs(title="Riverine Flood Risk versus Population",y="Riverine Flood Risk")
 ```
 
-
 ##Visualized Mapped Graphics
+
 ```{r mapview tests FL}
 mapview(list(FL_NRI_fire_shp,FL_EJ_shp),
         zcol=c("WFIR_RISKS","PRE1960PCT"),
@@ -314,13 +339,15 @@ mapview(NC_EJ_shp,zcol="PRE1960PCT")
 #           remove_controls = c("homeButton", "layersControl"))
 ```
 
-
-
 ## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+This is an R Markdown document. Markdown is a simple formatting syntax
+for authoring HTML, PDF, and MS Word documents. For more details on
+using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+When you click the **Knit** button a document will be generated that
+includes both content as well as the output of any embedded R code
+chunks within the document. You can embed an R code chunk like this:
 
 ```{r cars}
 summary(cars)
@@ -334,4 +361,5 @@ You can also embed plots, for example:
 plot(pressure)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Note that the `echo = FALSE` parameter was added to the code chunk to
+prevent printing of the R code that generated the plot.
