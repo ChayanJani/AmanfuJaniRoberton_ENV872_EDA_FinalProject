@@ -2,7 +2,10 @@
 title: "Fire & Flood Risks in EJ Communities"
 author: "David Amanfu, Chayan Jani, Kelsie Roberton"
 date: "April 2022"
-output: pdf_document
+output: 
+  html_document:
+    toc: true
+    toc_float: true
 editor_options: 
   markdown: 
     wrap: 72
@@ -11,19 +14,27 @@ editor_options:
 ```{r, initialize}
 # Set your working directory
 getwd()
-knitr::opts_knit$set(root.dir = '/Desktop/Duke MPP/Environ Data /872 Final Project/AmanfuJaniRoberton_ENV872_EDA_FinalProject/Project/')
+#knitr::opts_knit$set(root.dir = '/Desktop/Duke MPP/Environ Data /872 Final Project/AmanfuJaniRoberton_ENV872_EDA_FinalProject/Project/')
 knitr::opts_chunk$set(echo = TRUE)
-getwd()
 ```
-```{=tex}
-\newpage
-\tableofcontents 
-\newpage
-\listoftables 
-\newpage
-\listoffigures 
-\newpage
-```
+
+<!-- ```{=tex} -->
+
+<!-- \newpage -->
+
+<!-- \tableofcontents  -->
+
+<!-- \newpage -->
+
+<!-- \listoftables  -->
+
+<!-- \newpage -->
+
+<!-- \listoffigures  -->
+
+<!-- \newpage -->
+
+<!-- ``` -->
 
 ##Initializing Setup
 
@@ -65,13 +76,39 @@ Theme2 <- theme_ipsum()+
 theme_set(Theme2)
 ```
 
-#Data Setup 
+#Data Setup
 ##Data Retrieval
 
-For our analysis, we used data collected from the Environmental Protection Agency (EPA) EJ Screen to look at pre-1960 housing and low-income housing populations. For reference, EJScreen is an environmental justice screening and mapping tool that provides the EPA with datasets on a national-scale that combines environmental and geographic indicators (epa.gov). All EJScreen indicators are publicly available data on the EPA website. For our analysis, data was downloaded as an Excel file [here](https://gaftp.epa.gov/EJSCREEN/). Our analysis used 2020 data from EJScreen as opposed to 2021 data in order to avoid any data inconsistencies that may have not been resolved in the 2021 data. As well, the Census Bureau’s data we utilized was from 2020, and for consistency sake we continued with 2020 data. We are not aware of any significant changes between the two otherwise. To nicely overlay the information from the census tracts onto a geometry, we included matching census tract information from the US Census Bureau’s Gazetteer Files database. The Gazetteer files, downloadable [here](https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.2020.html), include geographic identifying information including tract tags, county names, and importantly, representative latitude and longitude coordinates. 
-To gather data for wildfire and flood risk, we utilized FEMA’s National Risk Index (NRI) data. The NRI data contains information regarding a geographic boundary’s exposure to and risk implications of 18 natural hazards. The data is made available at both the county and census tract level. We used the csv for all census tracts, downloadable [here](https://hazards.fema.gov/nri/data-resources), due to the large size of the shapefile. We combined this data with US Census shapefiles at the census-tract level, with Cartographic Boundary Files, downloadable [here].
-## Load Datasets
-```{r load datasources}
+For our analysis, we used data collected from the Environmental
+Protection Agency (EPA) EJ Screen to look at pre-1960 housing and
+low-income housing populations. For reference, EJScreen is an
+environmental justice screening and mapping tool that provides the EPA
+with datasets on a national-scale that combines environmental and
+geographic indicators (epa.gov). All EJScreen indicators are publicly
+available data on the EPA website. For our analysis, data was downloaded
+as an Excel file [here](https://gaftp.epa.gov/EJSCREEN/). Our analysis
+used 2020 data from EJScreen as opposed to 2021 data in order to avoid
+any data inconsistencies that may have not been resolved in the 2021
+data. As well, the Census Bureau's data we utilized was from 2020, and
+for consistency sake we continued with 2020 data. We are not aware of
+any significant changes between the two otherwise. To nicely overlay the
+information from the census tracts onto a geometry, we included matching
+census tract information from the US Census Bureau's Gazetteer Files
+database. The Gazetteer files, downloadable
+[here](https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.2020.html),
+include geographic identifying information including tract tags, county
+names, and importantly, representative latitude and longitude
+coordinates. To gather data for wildfire and flood risk, we utilized
+FEMA's National Risk Index (NRI) data. The NRI data contains information
+regarding a geographic boundary's exposure to and risk implications of
+18 natural hazards. The data is made available at both the county and
+census tract level. We used the csv for all census tracts, downloadable
+[here](https://hazards.fema.gov/nri/data-resources), due to the large
+size of the shapefile. We combined this data with US Census shapefiles
+at the census-tract level, with Cartographic Boundary Files,
+downloadable \[here\]. ## Load Datasets
+
+```{r load datasources, include=FALSE}
 # Load your datasets
 home_path <- '~/Desktop/Duke MPP/Environ Data /872 Final Project'
 
@@ -81,11 +118,25 @@ EJScreen20 <- read.csv(paste(home_path,'/AmanfuJaniRoberton_ENV872_EDA_FinalProj
 ```
 
 #Data Wrangling
-We started our analysis by selecting the following columns from the raw (name of data file) GEOID, NAMESLAD, NAMESLADCO, ALAND, AWATER, geometry for each state (NC, FL and CA). Next, we filtered for each state that has to do with fire and floods. Following this, EJScreen data came in census block groups. We used the ‘group by’ summarize function to aggregate into census tracts. Following this, we can match these census tracts by the NRI risk data files (by state). 
 
-Because EJ Screen data does not come with geometric coordinates, we had to import and merge the census gazetteer files to at least give them a corresponding point within the census. Following this, we attempted to merge both of the filtered files for each state’s fire and flood data. Finally, we were able to create three data-sets per shape: fire-risks, flood-risks, and EJScreen demographic. We then proceeded with the exploratory analysis, which can be shown below
+We started our analysis by selecting the following columns from the raw
+(name of data file) GEOID, NAMESLAD, NAMESLADCO, ALAND, AWATER, geometry
+for each state (NC, FL and CA). Next, we filtered for each state that
+has to do with fire and floods. Following this, EJScreen data came in
+census block groups. We used the 'group by' summarize function to
+aggregate into census tracts. Following this, we can match these census
+tracts by the NRI risk data files (by state).
 
-Given the extensive nature of all of the datasets, we  decided to remove California from our analyses and focus on North Carolina and Florida.
+Because EJ Screen data does not come with geometric coordinates, we had
+to import and merge the census gazetteer files to at least give them a
+corresponding point within the census. Following this, we attempted to
+merge both of the filtered files for each state's fire and flood data.
+Finally, we were able to create three data-sets per shape: fire-risks,
+flood-risks, and EJScreen demographic. We then proceeded with the
+exploratory analysis, which can be shown below
+
+Given the extensive nature of all of the datasets, we decided to remove
+California from our analyses and focus on North Carolina and Florida.
 ##Filter Steps 
 ### Initial Filter By State
 
@@ -153,9 +204,12 @@ EJ_Florida <-EJ_filter %>%
 #write.csv(EJ_Florida,'./Potential Data Sources/Census Tracts/EJScreen_FLorida.csv')
 ```
 
-##Adding Location Data 
-###Shape Files from Census Data 
-Add in Shape Files <https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html>
+##Adding Location Data
+
+###Shape Files from Census Data
+
+Add in Shape Files
+<https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html>
 
 ```{r census tracts}
 california_tract <- st_read('./Potential Data Sources/Census Tracts/cb_2020_cali_tract_500k/cb_2020_06_tract_500k.shp',)
@@ -257,9 +311,8 @@ NC_EJ_shp <- NC_EJ_df %>%
   st_as_sf(coords = c('INTPTLONG','INTPTLAT'), crs=4269)
 ```
 
-
-#Data Exploration ##Simple Mapping
-
+#Data Exploration 
+##Simple Mapping
 ```{r simple mapview tests}
 #FL
 mapview(FL_NRI_flood_shp,zcol="RFLD_RISKR")
@@ -275,7 +328,6 @@ mapview(NC_NRI_fire_shp,zcol="POPULATION")+mapview(NC_NRI_flood_shp,zcol="RFLD_R
 ```
 
 ## Filtering Out Missing Data
-
 ```{r Dropping Incomplete Info}
 FL_EJ_shp <- FL_EJ_shp %>%
   drop_na(BLOCKID)
@@ -293,9 +345,10 @@ NC_NRI_flood_shp <- NC_NRI_flood_shp %>%
   drop_na(POPULATION)
 ```
 
-#Data Analysis 
+#Data Analysis
 
 ## Simple Correlative Graphs
+
 ```{r simple ggplots FL}
 ggplot(FL_EJ_df,aes(y=LOWINCPCT,x=PM25))+geom_point(aes(color=LINGISOPCT))+geom_smooth(method="lm")+labs(title="PM25 v Low Income %",y="% Low Income Census Tract",x="PM25 Concentration")
 
@@ -325,8 +378,8 @@ mapview(list(FL_NRI_flood_shp,FL_EJ_shp),
         col.regions=list(mapviewPalette("mapviewVectorColors"),mapviewPalette("mapviewTopoColors")),
         alpha.regions=.5)
 
-mapview(FL_NRI_fire_shp,zcol="WFIR_RISKS")
-mapview(FL_EJ_shp,zcol="LOWINCPCT",alpha.regions=.5,col.regions= mapviewPalette("mapviewTopoColors"))
+# mapview(FL_NRI_fire_shp,zcol="WFIR_RISKS")
+# mapview(FL_EJ_shp,zcol="LOWINCPCT",alpha.regions=.5,col.regions= mapviewPalette("mapviewTopoColors"))
 #mapview(FL_EJ_shp,zcol="PRE1960PCT")
 
 # mapshot(m, file = paste0(getwd(), "/map.png"),
@@ -344,17 +397,17 @@ mapview(list(NC_NRI_flood_shp,NC_EJ_shp),
         col.regions=list(mapviewPalette("mapviewVectorColors"),mapviewPalette("mapviewTopoColors")),
         alpha.regions=.5)
 
-mapview(NC_NRI_fire_shp,zcol="WFIR_RISKS")
-mapview(NC_EJ_shp,zcol="LOWINCPCT",alpha.regions=.5,col.regions= mapviewPalette("mapviewTopoColors"))
+# mapview(NC_NRI_fire_shp,zcol="WFIR_RISKS")
+# mapview(NC_EJ_shp,zcol="LOWINCPCT",alpha.regions=.5,col.regions= mapviewPalette("mapviewTopoColors"))
 #mapview(NC_EJ_shp,zcol="PRE1960PCT")
 
 # mapshot(m, file = paste0(getwd(), "/map.png"),
 #           remove_controls = c("homeButton", "layersControl"))
 ```
 
-
 ##Statistical Analyses 
-### Merged Datasets 
+### Merged Datasets
+
 ```{r}
 #new dataset for low income population from above tractfips - FL, NC
 Lowincomepop <-rbind(EJ_Flor, EJ_NorCar)
@@ -379,8 +432,15 @@ RFLoodrisk <- Floodrisk%>%
   filter(RFLD_RISKR == "Very High"| RFLD_RISKR == "Relatively High" )
 ```
 
+### Coastal Flooding Tests
 
-### Coastal Flooding Tests 
+The p-value of the test is 0.01496, which is less than the significance
+level alpha = 0.05. We can conclude that low income population and
+coastal flood risks are significantly correlated with a correlation
+coefficient of 0.1806238 and p-value of 0.01496.It has a positive
+correlation which means flood risk is impacting a significant %of low
+income population.
+
 ```{r}
 #statistical test for coastal flooding and low income population
 LI_CF_risk <- left_join(CFLoodrisk,Lowincomepop,by="TRACTFIPS")
@@ -397,10 +457,16 @@ par(mfrow = c(1,1))
  
 #mapview for coastal flooding - ensure population is represented by size of the dot
 #comments
-
 ```
- 
-###Riverine Flooding Tests 
+
+###Riverine Flooding Tests The p-value of the test is 0.4548, which is
+greater than the significance level alpha = 0.05. From this We can
+conclude that low income population and river flood risks are not
+significantly correlated and correlation coefficient is -0.02787792,
+negative implying inverse relationship.This might be due to the states
+selected and the overall chances of river flooding. This also means that
+the population at risk from river floods is not mostly low income.
+
 ```{r}
 #statistical test for river flooding and low income population
 LI_RF_risk <- left_join(RFLoodrisk,Lowincomepop,by="TRACTFIPS")
@@ -418,8 +484,10 @@ par(mfrow = c(1,1))
 #mapview for river flooding - ensure population is represented by size of the dot
 #comments
 ```
- 
+
 ###Wildfire Risk Tests 
+The p-value of the test is 0.53, which is greater than the significance level alpha = 0.05. From this we can conclude that low income population and wildfire risks are not significantly correlated and correlation coefficient is -0.03065284 , negative implying inverse relationship.This might be due to the states selected and the overall chances of wildfire risk. This also means that the population at risk from wildfire is not mostly low income.
+
 ```{r}
 #statistical test for wildfire and low income population
 LI_WF_risk <- left_join(Firerisk,Lowincomepop,by="TRACTFIPS")
@@ -439,10 +507,17 @@ par(mfrow = c(1,1))
  
 ```
 
-#Conclusions
+#Conclusions 
+The project aimed to look at the Environment Justice component from natural hazards. While there were several EJ communities, for our final report we focused on the % of the low income population. We looked at the National risk index for three natural hazard categories: coastal flooding, river flooding and wildfire. We looked at these parameters for two states: Florida and North Carolina
 
-##Limitations
-The datasets we decided to use were very dense, making it difficult for R to adequately download the values. Unfortunately, a lot of filtering for the original EJScreen dataset was required to actually upload, push, and pull the data from GitHub to R and vice versa. This left a lot of precious time that could have been spent exploring air quality, which was another natural hazard risk that we initially planned to analyze. 
+On analyzing the counties with high or relatively high natural hazard risk and comparing it with the % of low income population in that county we found that: 
+- In all three states where there was a high risk of coastal flooding, there was a significant percentage of low income population. 
+- In all three states where there was high risk of river flooding and wildfire risk there was not a significant percentage of low income population.
 
-Furthermore, there was a lot of data for the state of California compared to North Carolina and Florida. That said, it made it difficult for us to understand and identify a trend.
+##Limitations 
+The datasets we decided to use were very dense, making it difficult for R to adequately download the values. Unfortunately, a lot of filtering for the original EJScreen dataset was required to actually upload, push, and pull the data from GitHub to R and vice versa. This left a lot of precious time that could have been spent exploring air quality, which was another natural hazard risk that we initially planned to analyze.
+
+Furthermore, there was a lot of data for the state of California compared to North Carolina and Florida. That said, it made it difficult for us to understand and identify a trend. We removed California from the study as a result.
+
+The data also had many categorical variables for NRI data and different populations for EJ data. This leaves a lot of scope for different analysis and finding statistically significant results.
 
